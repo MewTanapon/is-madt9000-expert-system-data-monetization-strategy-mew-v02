@@ -15,7 +15,6 @@ import tempfile
 
 def gemini_model():
 
-    # os.environ["GOOGLE_API_KEY"] = google_api_key
     os.environ["GOOGLE_API_KEY"] = st.secrets['gemini']['api_key']
     model = ChatGoogleGenerativeAI(model='gemini-1.5-pro-002', temperature=0)
 
@@ -135,23 +134,18 @@ def data_monetization_strategy_framework(model, strategic_choices, business_stra
 
     - Use cases
 
-    "Use_Case_1": 
         "Topic": "Targeted Marketing Campaign Leveraging Social Media and Influencers",
         "Implementation": "A targeted social media campaign on platforms popular with young professionals in Bangkok (e.g., Instagram, TikTok, Facebook) would be launched. This would involve working with relevant influencers to promote the bank's low fees, user-friendly mobile app, and other key value propositions. The campaign would focus on showcasing the convenience and affordability of the bank's services compared to traditional banks and other fintech competitors. Personalized ads based on user demographics and online behavior would be used to maximize reach and engagement.",
         "Metrics": "Number of new customer accounts opened, cost per acquisition (CPA), click-through rate (CTR) on ads, engagement rate on social media posts, brand mentions on social media."
     ,
-    
-    "Use_Case_2": 
         "Topic": "Increase customer engagement and savings deposits by 20% within one year.",
         "Implementation": "A gamified savings feature would be added to the mobile banking app. This feature could involve rewarding users for consistent saving behavior with virtual badges, points, or other incentives. It could also incorporate elements of friendly competition or challenges among users to encourage participation. The gamification would be designed to make saving money more fun and engaging for young professionals.",
         "Metrics": "Number of users actively using the gamified savings feature, average savings balance per user, user engagement with the gamified feature (e.g., time spent, frequency of interaction), growth rate of savings deposits."
     ,
-    
-    "Use_Case_3": 
         "Topic": " Expand customer base and increase transaction volume by 15% within two years.",
         "Implementation": "A strategic partnership with a leading e-commerce platform in Thailand would be established to offer seamless payment integration within the platform. Customers could use the virtual bank's mobile app to make payments directly on the e-commerce site, benefiting from the bank's low transaction fees and convenient mobile interface. This would expose the bank to a large and relevant customer base already using the e-commerce platform.",
         "Metrics": "Number of transactions processed through the e-commerce platform integration, increase in transaction volume, growth in the number of active users, customer acquisition cost through the partnership, customer satisfaction with the integrated payment system."
-    ,
+    
     
     ####
 
@@ -199,18 +193,18 @@ def data_monetization_strategy_framework(model, strategic_choices, business_stra
             KPIs:
             
     - Use Case
-        Use_Case_1:
-            Topic:
-            Implementation:
-            Metrics:
-        Use_Case_2:
-            Topic:
-            Implementation:
-            Metrics:
-        Use_Case_3:
-            Topic:
-            Implementation:
-            Metrics:
+
+        Topic:
+        Implementation:
+        Metrics:
+    ,
+        Topic:
+        Implementation:
+        Metrics:
+    ,
+        Topic:
+        Implementation:
+        Metrics:
 
     """ 
     
@@ -530,14 +524,8 @@ def save_docs(data_monetize_result_df, data_arch_result_df, use_case_df):
 
 def main():
 
-    # with st.sidebar:
-    #     google_api_key = st.text_input("Gemini API Key", type="password")
-    #     if not google_api_key:
-    #         st.info("Please add your Gemini API key", icon="🗝️")
-            
-    #     if google_api_key is not None:
-    #         if st.button("Add Gemini API Key"):
-    #             st.success("Gemini API key successfully uploaded.", icon="✅")
+    if 'doc_content' not in st.session_state:
+        st.session_state['doc_content'] = None
 
     st.title("Data Monetization Strategy Framework for Virtual Banks in Thailand")
     st.header(":red[Strategy]")
@@ -561,43 +549,64 @@ def main():
     monitoring_score = st.slider("Monitoring Score", 0, 5, 2)
 
     if st.button("Submit"):
-        model = gemini_model()
-        data_monetization_strategy_framework_result = data_monetization_strategy_framework(model,
-                                                                                        strategic_choices,
-                                                                                        business_strategy,
-                                                                                        business_goals_score,
-                                                                                        human_resources_score,
-                                                                                        data_technology_score,
-                                                                                        aidriven_analytics_score,
-                                                                                        data_management_score,
-                                                                                        metrics_score,
-                                                                                        monitoring_score)
+        with st.spinner("Processing your document..."):
+            model = gemini_model()
+            data_monetization_strategy_framework_result = data_monetization_strategy_framework(model,
+                                                                                            strategic_choices,
+                                                                                            business_strategy,
+                                                                                            business_goals_score,
+                                                                                            human_resources_score,
+                                                                                            data_technology_score,
+                                                                                            aidriven_analytics_score,
+                                                                                            data_management_score,
+                                                                                            metrics_score,
+                                                                                            monitoring_score)
 
-        data_monetization_recommendation_information = data_monetization_strategy_framework_result['expert_system_recommendation']
-        data_architecture_framework_result = data_architecture_framework(model, 
-                                                                        data_monetization_recommendation_information, 
-                                                                        status, 
-                                                                        business_strategy)
-        data_architecture_framework_information = data_architecture_framework_result['data_architecture_recommendation']
-        use_case_example_information = {
-            use_case['Topic']: {
-                "Use_Case": use_case["Topic"],
-                "Implementation": use_case["Implementation"],
-                "Metrics": use_case["Metrics"]
+            data_monetization_recommendation_information = data_monetization_strategy_framework_result['expert_system_recommendation']
+            data_architecture_framework_result = data_architecture_framework(model, 
+                                                                            data_monetization_recommendation_information, 
+                                                                            status, 
+                                                                            business_strategy)
+            data_architecture_framework_information = data_architecture_framework_result['data_architecture_recommendation']
+            use_case_example_information = {
+                use_case['Topic']: {
+                    "Use_Case": use_case["Topic"],
+                    "Implementation": use_case["Implementation"],
+                    "Metrics": use_case["Metrics"]
+                }
+                for use_case in data_monetization_strategy_framework_result['use_case']
             }
-            for use_case in data_monetization_strategy_framework_result['use_case']
-        }
 
-        data_monetization_strategy_framework_df = pd.DataFrame.from_dict(data_monetization_recommendation_information, orient='index')
-        data_architecture_framework_df = pd.DataFrame.from_dict(data_architecture_framework_information, orient='index')
-        use_case_example_df = pd.DataFrame.from_dict(use_case_example_information, orient='index')
+            data_monetization_strategy_framework_df = pd.DataFrame.from_dict(data_monetization_recommendation_information, orient='index')
+            data_architecture_framework_df = pd.DataFrame.from_dict(data_architecture_framework_information, orient='index')
+            use_case_example_df = pd.DataFrame.from_dict(use_case_example_information, orient='index')
 
-        doc_content = save_docs(data_monetize_result_df=data_monetization_strategy_framework_df, 
-                                data_arch_result_df=data_architecture_framework_df,
-                                use_case_df=use_case_example_df)
+            st.session_state['doc_content'] = save_docs(
+                data_monetize_result_df=data_monetization_strategy_framework_df,
+                data_arch_result_df=data_architecture_framework_df,
+                use_case_df=use_case_example_df
+            )
+
+            st.success("Document processed successfully!")
+
+        if st.session_state['doc_content']:
+            st.markdown("---")
+            st.markdown(
+                """
+                <div style="background-color: #f9f9f9; padding: 20px; border-radius: 10px; text-align: center;">
+                    <h3 style="color: #4CAF50;">Your document is ready to download! 📄</h3>
+                    <p style="color: #555;">Click the button below to download your customized data monetization strategy document.</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
             
-        st.write("Click the button below to download the data monetization strategy document.")
-        st.download_button(label="Download", data=doc_content, file_name="data_monetization_strategy_framework_docs.docx")
+            st.download_button(
+                label="📥 Download Document",
+                data=st.session_state['doc_content'],
+                file_name="data_monetization_strategy_framework_docs.docx",
+                key="download-button"
+            )
 
 if __name__ == '__main__':
     main()
